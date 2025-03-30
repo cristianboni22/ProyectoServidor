@@ -13,7 +13,7 @@ return new class extends Migration
     {
         //
         Schema::table('empleado',function (Blueprint $table){
-            $table->unsignedBigInteger('departamento_id');
+            $table->unsignedBigInteger('departamento_id')->nullable();
             $table->foreign('departamento_id')->references('id')->on('departamento');
         });
     }

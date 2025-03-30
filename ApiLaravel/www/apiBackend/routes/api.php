@@ -1,11 +1,12 @@
 <?php
 
-use Illuminate\Http\Request;
+//use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmpleadoController;
 
 Route::get('/hola', [DepartamentoController::class, 'index']);
-
 
 // Rutas de autenticación
 Route::post('/register', [AuthController::class, 'register']);

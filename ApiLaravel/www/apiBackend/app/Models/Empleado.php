@@ -3,15 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Empleado extends Model
+class Empleado extends Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'empleado'; // Asegura que la tabla sea la correcta
+    protected $table = 'empleado'; 
+    
+    protected $fillable = [
+        'login',
+        'password',
+        'dni',
+        'nombre_completo',
+    ];
 
-    public function departamento() // En singular porque un empleado tiene UN departamento
+    public function departamento()
     {
         return $this->belongsTo(Departamento::class, 'departamento_id');
     }
