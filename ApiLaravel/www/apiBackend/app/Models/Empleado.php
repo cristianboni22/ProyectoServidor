@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Empleado extends Authenticatable
+class Empleado extends Authenticatable implements JWTSubject
+
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory;
 
     protected $table = 'empleado'; 
     
@@ -17,6 +20,21 @@ class Empleado extends Authenticatable
         'dni',
         'nombre_completo',
     ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+// Métodos JWT
+public function getJWTIdentifier()
+{
+    return $this->getKey();
+}
+
+public function getJWTCustomClaims()
+{
+    return [];
+}
 
     public function departamento()
     {

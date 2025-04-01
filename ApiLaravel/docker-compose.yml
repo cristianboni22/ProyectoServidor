@@ -29,6 +29,20 @@ services:
       PMA_HOST: mariadb
     depends_on:
       - mariadb
+  node:
+    image: docker.io/bitnami/node:latest
+    container_name: node
+    ports:
+      - 3000:3000
+      - 4200:4200
+    networks:
+      - HLC
+    volumes:
+      - .:/app
+    tty: true
+networks:
+  HLC:
+    name: HLC
 # Volumes
 volumes:
   mysqldata:

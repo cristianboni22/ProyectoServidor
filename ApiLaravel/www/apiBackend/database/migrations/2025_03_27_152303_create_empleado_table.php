@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('empleado', function (Blueprint $table) {
             $table->string('dni');
             $table->timestamps();
+            $table->rememberToken();
             $table->string('nombre_completo');
             $table->string('login');
             $table->string('password');
