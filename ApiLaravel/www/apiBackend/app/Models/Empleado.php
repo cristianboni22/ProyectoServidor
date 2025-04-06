@@ -12,13 +12,16 @@ class Empleado extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory;
 
-    protected $table = 'empleado'; 
+    protected $table = 'empleado';
+    protected $primaryKey = 'dni';
+    public $incrementing = false; 
     
     protected $fillable = [
         'login',
         'password',
         'dni',
         'nombre_completo',
+        'departamento_id'
     ];
     protected $hidden = [
         'password',

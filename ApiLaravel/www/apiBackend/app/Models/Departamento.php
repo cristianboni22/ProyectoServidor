@@ -9,9 +9,15 @@ class Departamento extends Model
 {
     use HasFactory;
 
-    protected $table = 'departamento'; // Asegura que la tabla sea la correcta
+    protected $table = 'departamento'; 
 
-    public function empleados() // En plural porque un departamento tiene muchos empleados
+    protected $fillable = [
+        'nombre',
+        'email',
+        'telefono'
+    ];
+
+    public function empleados() 
     {
         return $this->hasMany(Empleado::class, 'departamento_id'); 
     }

@@ -17,7 +17,12 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'dni' => $request->dni,
             'nombre_completo' => $request->nombre_completo,
+            'departamento_id' => $request->departamento_id,
         ]);
+
+        if (!$empleado) {
+            return response()->json(['error' => 'Problema con el Usuario'], 404);
+        }
 
         return response()->json(['respuesta' => 'El usuario ha sido creado con exito en la BD']);
     }
