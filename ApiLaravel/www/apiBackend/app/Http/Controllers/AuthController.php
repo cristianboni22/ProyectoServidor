@@ -6,12 +6,26 @@ use Illuminate\Http\Request;
 use App\Models\Empleado;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
     //
     public function register(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'login' => 'required|string|unique:empleado,login',
+            'password' => 'required|string|min:6',
+            'dni' => 'required|string|unique:empleado,dni',
+            'nombre_completo' => 'required|string',
+            'departamento_id' => 'required|exists:departamento,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()
+            ], 422);
+        }
         $empleado = Empleado::create([
             'login' => $request->login,
             'password' => Hash::make($request->password),
@@ -23,7 +37,6 @@ class AuthController extends Controller
         if (!$empleado) {
             return response()->json(['error' => 'Problema con el Usuario'], 404);
         }
-
         return response()->json(['respuesta' => 'El usuario ha sido creado con exito en la BD']);
     }
 
@@ -37,6 +50,7 @@ class AuthController extends Controller
 
         // Buscar al empleado por su login
         $empleado = Empleado::where('login', $request->login)->first();
+        $token=$empleado->createToken(('token-name'));
 
         // Si no se encuentra el empleado
         if (!$empleado) {
@@ -49,6 +63,6 @@ class AuthController extends Controller
         }
 
         // Si todo está bien, devolver un mensaje de éxito
-        return response()->json(['message' => 'Login exitoso']);
+        return response()->json(['message' => $token->plainTextToken]);
     }
 }
