@@ -1,0 +1,38 @@
+<div id="fila1" class="row">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+      <a class="navbar-brand" routerLink="/">IES Celia Viñas</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <!-- Aquí puedes poner otros enlaces si quieres -->
+        </ul>
+
+        <ul class="navbar-nav ms-auto">
+          <!-- Si NO está logueado -->
+          <ng-container *ngIf="!authService.loggedIn(); else logged">
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/login" routerLinkActive="active">Iniciar sesión</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/registro" routerLinkActive="active">Registrarse</a>
+            </li>
+          </ng-container>
+
+          <!-- Si SÍ está logueado -->
+          <ng-template #logged>
+            <li class="nav-item">
+              <a class="nav-link" style="cursor: pointer;" (click)="authService.logout()">Cerrar sesión</a>
+            </li>
+          </ng-template>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>

@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-md-4 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                Registro
+            </div>
+            <div class="card-body">
+                <form (submit)="signUp()">
+                    <div class="form-group">
+                        <input type="text" [(ngModel)]="user.login" name="login" class="form-control"
+                            placeholder="login" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" [(ngModel)]="user.password" name="password" class="form-control"
+                            placeholder="Password" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" [(ngModel)]="user.dni" name="dni" class="form-control" placeholder="dni"
+                            required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" [(ngModel)]="user.nombre_completo" name="nombre_completo"
+                            class="form-control" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="departamento" class="form-select" [(ngModel)]="user.departamento_id"
+                            name="departamento_id" required>
+                            <option [value]="''" disabled selected>Selecciona un departamento</option>
+                            <option *ngFor="let dep of departamentoService.listaDepartamentos" [value]="dep.id">
+                                {{ dep.nombre }}
+                            </option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-block">
+                        Registro
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
