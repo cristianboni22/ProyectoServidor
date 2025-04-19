@@ -73,7 +73,14 @@ El frontend consume la API REST creada en Laravel y permite al usuario interactu
 ```bash
 cd apiBackend
 composer install
-cp .env.example .env
-php artisan key:generate
 php artisan migrate --seed
 php artisan serve
+```
+
+### Frontend
+```bash
+cd frontend 
+npm build
+npm install
+ng serve --host 0.0.0.0 --port 4200
+```

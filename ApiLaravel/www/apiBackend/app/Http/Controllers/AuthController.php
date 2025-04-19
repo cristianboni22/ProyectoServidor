@@ -16,7 +16,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'login' => 'required|string|unique:empleado,login',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string',
             'dni' => 'required|string|unique:empleado,dni',
             'nombre_completo' => 'required|string',
             'departamento_id' => 'required|exists:departamento,id',
@@ -50,7 +50,6 @@ class AuthController extends Controller
 
         // Buscar al empleado por su login
         $empleado = Empleado::where('login', $request->login)->first();
-        $token=$empleado->createToken(('token-name'));
 
         // Si no se encuentra el empleado
         if (!$empleado) {
@@ -61,8 +60,16 @@ class AuthController extends Controller
         if (!Hash::check($request->password, $empleado->password)) {
             return response()->json(['error' => 'Contraseña incorrecta'], 401);
         }
+        // Aquí decides si el login pertenece a un SuperAdmin
+        $role = ($empleado->login === 'SuperAdmin') ? 'SuperAdmin' : 'Empleado';
 
-        // Si todo está bien, devolver un mensaje de éxito
-        return response()->json(['message' => $token->plainTextToken]);
+        // Crear el token de autenticación
+        $token = $empleado->createToken('token-name');
+
+        // Responder con el token y el rol
+        return response()->json([
+            'mensaje' => $token->plainTextToken,
+            'role' => $role 
+        ]);
     }
 }

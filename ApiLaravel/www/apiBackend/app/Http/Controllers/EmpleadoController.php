@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class EmpleadoController extends Controller
 {
@@ -33,7 +34,10 @@ class EmpleadoController extends Controller
             'password' => 'required',
             'departamento_id' => 'required|exists:departamento,id',
         ]);
-        $empleado = Empleado::create($request->all());
+        $datosEmpleado = $request->all();
+        $datosEmpleado['password'] = Hash::make($request->password);
+    
+        $empleado = Empleado::create($datosEmpleado);
         return response()->json(['message' => 'Empleado creado correctamente'], 201);
     }
 
@@ -49,7 +53,10 @@ class EmpleadoController extends Controller
             'password' => 'required',
             'departamento_id' => 'required|exists:departamento,id',
         ]);
-        $empleado->update($request->all());
+        $datosEmpleado = $request->all();
+        $datosEmpleado['password'] = Hash::make($request->password);
+    
+        $empleado->update($datosEmpleado);
         return response()->json(['message' => 'Empleado modificado correctamente'], 200);
     }
 
