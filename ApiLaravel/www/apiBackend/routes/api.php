@@ -12,6 +12,7 @@ Route::get('/hola', [DepartamentoController::class, 'index']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::middleware('auth:sanctum')->group(function () {
 // Rutas de Departamento (accesibles sin autenticación)
 Route::get('/departamento', [DepartamentoController::class, 'index']); // Obtener todos los departamentos
 Route::get('/departamento/{id}', [DepartamentoController::class, 'show']); // Obtener departamento por ID
@@ -29,3 +30,4 @@ Route::delete('/departamento/{id}', [DepartamentoController::class, 'destroy']);
 Route::post('/empleado', [EmpleadoController::class, 'store']);  // Crear nuevo empleado
 Route::put('/empleado/{dni}', [EmpleadoController::class, 'update']); // Modificar empleado
 Route::delete('/empleado/{dni}', [EmpleadoController::class, 'destroy']); // Eliminar empleado
+});

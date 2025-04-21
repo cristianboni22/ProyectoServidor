@@ -84,3 +84,13 @@ npm build
 npm install
 ng serve --host 0.0.0.0 --port 4200
 ```
+
+
+Necesito autenticar las peticiones de las rutas del backend con el token desde el frontend 
+
+frontend si es un usuario no administrador solo muestra el mismo propio y los datos del departamento 
+
+Mostrar los errores que te da el backend si falta algo o si repite algo
+
+Puedo añadir al modelo de empleado una columna llamada rol y que diga si es SuperAdmin o empleado o sino de otra manera
+
