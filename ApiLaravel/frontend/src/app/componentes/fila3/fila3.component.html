@@ -30,7 +30,7 @@
                     <td>{{ empleado.dni }}</td>
                     <td>{{ empleado.nombre_completo }}</td>
                     <td>{{ empleado.login }}</td>
-                    <td>{{ empleado.departamento_id }}</td>
+                    <td>{{ getDepartamentoName(+empleado.departamento_id) }}</td>
                     <td>
                       <button class="btn btn-sm btn-success me-2" (click)="servicio.editarEmpleado(empleado.dni)">
                         <i class="bi bi-pencil-square">Editar</i>
@@ -215,7 +215,8 @@
                 <td>{{ empleado.dni }}</td>
                 <td>{{ empleado.nombre_completo }}</td>
                 <td>{{ empleado.login }}</td>
-                <td>{{ empleado.departamento_id }}</td>
+                <td>{{ getDepartamentoName(+empleado.departamento_id) }}</td>
+
               </tr>
             </tbody>
           </table>

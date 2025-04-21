@@ -29,7 +29,7 @@ export class Fila3Component implements OnInit {
 
     this.servicio.obtenerEmpleados(); // Se cargan los empleados desde el servicio
     this.departamentoService.obtenerDepartamentos(); // Se hace la petición para cargar los departamentos
-    this.listaDepartamentos = this.departamentoService.listaDepartamentos;
+    //this.listaDepartamentos = this.departamentoService.listaDepartamentos;
     // Se obtiene la lista de departamentos del observable
     //this.departamentoService.getDepartamentos().subscribe(data => {
     //this.listaDepartamentos = data; // Se guarda la lista en la variable del componente
@@ -59,7 +59,7 @@ export class Fila3Component implements OnInit {
 
   // Función para obtener el nombre de un departamento a partir de su ID
   getDepartamentoName(departamentoId: number): string {
-    const departamento = this.listaDepartamentos.find(dep => dep.id === departamentoId);
-    return departamento ? departamento.nombre : 'Desconocido'; // Si no encuentra el ID, devuelve 'Desconocido'
+    const departamento = this.departamentoService.listaDepartamentos.find(dep => dep.id === departamentoId);
+    return departamento ? departamento.nombre : 'Desconocido';
   }
 }
