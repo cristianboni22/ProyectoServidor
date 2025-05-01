@@ -30,11 +30,7 @@ class EmpleadoTableSeeder extends Seeder
                 'departamento_id' => 2,
             ],
             [
-<<<<<<< HEAD
                 'dni' => '11111111111',
-=======
-                'dni' => '11111111',
->>>>>>> 9d9473f2215f06a116bcb173f6331463c60c9819
                 'nombre_completo' => 'SuperAdmin',
                 'login' => 'SuperAdmin',
                 'password' => bcrypt('password'),
