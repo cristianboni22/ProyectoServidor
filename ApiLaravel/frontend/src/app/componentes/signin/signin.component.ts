@@ -30,6 +30,7 @@ export class SigninComponent {
               console.log('Respuesta del backend:', res); // <- Esto te ayudará a ver el rol real que devuelve el backend
             
               sessionStorage.setItem('token', res.mensaje);
+              sessionStorage.setItem('login', this.user.login);
               
               const loginLimpio = this.user.login.trim().toLowerCase();
               const adminLogin = 'superadmin'; // Cambia esto si tu login de superadmin es diferente
@@ -42,18 +43,20 @@ export class SigninComponent {
               }
             
               this.router.navigate(['/editar']);
-            } else {
-              this.errorMessage = 'Usuario o contraseña incorrectos'; 
+            }},
+            (error) => {
+              // Capturar mensaje personalizado del backend
+              if (error.status === 404 || error.status === 401) {
+                // Espera que el backend devuelva { error: "mensaje" }
+                this.errorMessage = error.error?.error || 'Error desconocido al iniciar sesión.';
+              } else {
+                this.errorMessage = 'Error del servidor. Intente más tarde.';
+              }
+              console.error('Error al iniciar sesión:', this.errorMessage);
             }
-          },
-          (err: any) => {
-            console.error(err);
-            this.errorMessage = 'Error al autenticar, por favor intente nuevamente.'; 
-          }
-        );
-    } else {
-      this.errorMessage = 'Por favor, complete todos los campos.'; 
-    }
-  }
-  
+          );
+        } else {
+          this.errorMessage = 'Por favor, complete todos los campos.';
+        }
+      }
 }

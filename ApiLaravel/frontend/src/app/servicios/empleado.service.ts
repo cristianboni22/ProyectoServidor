@@ -36,6 +36,7 @@ export class EmpleadoService {
     return this.http.get<TipoEmpleado>(`${this.apiUrl}/${dni}`);
   }
 
+
   // ➕ Crear un nuevo empleado
   crearEmpleado(): void {// clonar
     this.http.post(this.apiUrl, this.formularioEmpleado, {

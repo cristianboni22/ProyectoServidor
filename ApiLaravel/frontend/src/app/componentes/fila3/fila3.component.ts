@@ -16,7 +16,7 @@ export class Fila3Component implements OnInit {
   login: string = ''; // Guarda el login del usuario actual
   role: string = ''; // Guarda el rol del usuario actual (SuperAdmin o Empleado)
   listaDepartamentos: TipoDepartamento[] = []; // Lista de departamentos que se carga al iniciar
-
+  empleadoActual: any = null;
   constructor(
     public servicio: EmpleadoService, // Inyección del servicio de empleados
     public departamentoService: DepartamentosService // Inyección del servicio de departamentos
@@ -29,11 +29,7 @@ export class Fila3Component implements OnInit {
 
     this.servicio.obtenerEmpleados(); // Se cargan los empleados desde el servicio
     this.departamentoService.obtenerDepartamentos(); // Se hace la petición para cargar los departamentos
-    //this.listaDepartamentos = this.departamentoService.listaDepartamentos;
-    // Se obtiene la lista de departamentos del observable
-    //this.departamentoService.getDepartamentos().subscribe(data => {
-    //this.listaDepartamentos = data; // Se guarda la lista en la variable del componente
-    //});
+    this.listaDepartamentos = this.departamentoService.listaDepartamentos;
 
     // Se recupera el login del sessionStorage
     this.login = sessionStorage.getItem('login') || '';
@@ -44,6 +40,12 @@ export class Fila3Component implements OnInit {
 
     // Se muestra en consola el rol que tiene el usuario
     console.log('ROL ACTUAL:', this.role);
+
+    this.servicio.getEmpleados().subscribe(empleados => {
+      if (this.role === 'Empleado') {
+        this.empleadoActual = empleados.find(emp => emp.login === this.login);
+      }
+    });
 
   }
 
@@ -62,4 +64,5 @@ export class Fila3Component implements OnInit {
     const departamento = this.departamentoService.listaDepartamentos.find(dep => dep.id === departamentoId);
     return departamento ? departamento.nombre : 'Desconocido';
   }
+  
 }

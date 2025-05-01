@@ -211,12 +211,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let empleado of servicio.listaEmpleados; trackBy: trackByDni">
-                <td>{{ empleado.dni }}</td>
-                <td>{{ empleado.nombre_completo }}</td>
-                <td>{{ empleado.login }}</td>
-                <td>{{ getDepartamentoName(+empleado.departamento_id) }}</td>
-
+              <tr *ngIf="empleadoActual">
+                <td>{{ empleadoActual.dni }}</td>
+                <td>{{ empleadoActual.nombre_completo }}</td>
+                <td>{{ empleadoActual.login }}</td>
+                <td>{{ getDepartamentoName(+empleadoActual.departamento_id) }}</td>
               </tr>
             </tbody>
           </table>

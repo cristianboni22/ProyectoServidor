@@ -26,6 +26,20 @@ class AuthController extends Controller
                 'error' => $validator->errors()
             ], 422);
         }
+
+
+    // Verificar si el login es "superadmin" (ignorar mayúsculas/minúsculas)
+    if (($request->login) === 'superadmin'&&'SuperAdmin') {
+        return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como login.']], 400);
+    }
+    if (($request->nombre_completo) === 'superadmin'&&'SuperAdmin') {
+        return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
+    }
+    if (($request->dni) === 'superadmin'&&'SuperAdmin') {
+        return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
+    }
+
+
         $empleado = Empleado::create([
             'login' => $request->login,
             'password' => Hash::make($request->password),

@@ -11,15 +11,13 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
+    public function run()
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            $this->call([
-                DepartamentoTableSeeder::class,
-                EmpleadoTableSeeder::class
-            ])
+        $this->call([
+            DepartamentoTableSeeder::class,
+            EmpleadoTableSeeder::class,
+            // Asegúrate de que no estén repetidos aquí
         ]);
     }
+
 }

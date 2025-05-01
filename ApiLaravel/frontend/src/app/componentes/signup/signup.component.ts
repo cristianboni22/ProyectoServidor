@@ -30,7 +30,6 @@ export class SignupComponent {
   ngOnInit(): void {
     // Se llama al cargar el componente
 
-    this.servicio.obtenerEmpleados(); // Se cargan los empleados desde el servicio
     this.departamentoService.obtenerDepartamentos(); // Se hace la petición para cargar los departamentos
 
     // Se obtiene la lista de departamentos del observable
@@ -48,18 +47,6 @@ export class SignupComponent {
     const departamento = this.listaDepartamentos.find(dep => dep.id === departamentoId);
     return departamento ? departamento.nombre : 'Desconocido';
   }
-//Registro iniciando sesion y redireccion 
-  //signUp() {
-  //  this.authService.signUpUser(this.user)
-  //    .subscribe(
-  //      (res:any) => {
-  //        console.log(res);
-  //        sessionStorage.setItem('token', res.mensaje);
-  //        this.router.navigate(['/login'])
-  //      },
-  //      err => console.log(err)
-  //    )
-  //}
 
   //Registro sin iniciar sesion solo creacion 
   signUp() {
@@ -69,7 +56,10 @@ export class SignupComponent {
           console.log(res);
           this.router.navigate(['/login']);
         },
-        err => console.log(err)
+        err => {
+          console.error(err);
+          alert('Error al crear el usuario. ' + (err.error?.error?.login ?? ''));
+        }
       );
   }
 }
