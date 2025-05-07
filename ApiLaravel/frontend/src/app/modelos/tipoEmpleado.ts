@@ -3,5 +3,5 @@ export interface TipoEmpleado {
     nombre_completo: string;
     login: string;
     password: string; 
-    departamento_id: string; 
+    departamento_id: number; 
 }

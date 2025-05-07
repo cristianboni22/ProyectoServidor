@@ -1,68 +1,77 @@
-import { Component, OnInit } from '@angular/core'; // Para definir el componente y usar el ciclo de vida OnInit
-import { FormsModule } from '@angular/forms'; // Para usar formularios con ngModel
-import { CommonModule } from '@angular/common'; // Módulo común de Angular (ngIf, ngFor, etc.)
-import { EmpleadoService } from '../../servicios/empleado.service'; // Servicio que maneja lógica de empleados
-import { DepartamentosService } from '../../servicios/departamentos.service'; // Servicio para departamentos
-import { TipoDepartamento } from '../../modelos/tipoDepartamento'; // Modelo para definir la estructura de un departamento
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { EmpleadoService } from '../../servicios/empleado.service';
+import { DepartamentosService } from '../../servicios/departamentos.service';
+import { TipoDepartamento } from '../../modelos/tipoDepartamento';
+import { TipoEmpleado } from '../../modelos/tipoEmpleado';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-fila3', // Selector del componente (etiqueta que se usa en HTML)
-  standalone: true, // Indica que es un componente independiente (sin necesidad de un módulo)
-  imports: [FormsModule, CommonModule], // Módulos necesarios para usar ngModel, ngIf, etc.
-  templateUrl: './fila3.component.html', // HTML asociado al componente
-  styleUrls: ['./fila3.component.css'] // CSS del componente
+  selector: 'app-fila3',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './fila3.component.html',
+  styleUrls: ['./fila3.component.css']
 })
-export class Fila3Component implements OnInit {
-  login: string = ''; // Guarda el login del usuario actual
-  role: string = ''; // Guarda el rol del usuario actual (SuperAdmin o Empleado)
-  listaDepartamentos: TipoDepartamento[] = []; // Lista de departamentos que se carga al iniciar
-  empleadoActual: any = null;
+export class Fila3Component implements OnInit, OnDestroy {
+  login: string = '';
+  role: string = '';
+  listaDepartamentos: TipoDepartamento[] = [];
+  empleadoActual: TipoEmpleado | null = null;
+  private departamentoSubscription: Subscription | undefined;
+
   constructor(
-    public servicio: EmpleadoService, // Inyección del servicio de empleados
-    public departamentoService: DepartamentosService // Inyección del servicio de departamentos
+    public servicio: EmpleadoService,
+    public departamentoService: DepartamentosService
   ) { }
 
-  modoEdicion: boolean = false; // Bandera para saber si se está editando algo
-
   ngOnInit(): void {
-    // Se llama al cargar el componente
-
-    this.servicio.obtenerEmpleados(); // Se cargan los empleados desde el servicio
-    this.departamentoService.obtenerDepartamentos(); // Se hace la petición para cargar los departamentos
-    this.listaDepartamentos = this.departamentoService.listaDepartamentos;
-
-    // Se recupera el login del sessionStorage
+    // Obtener datos de sesión
     this.login = sessionStorage.getItem('login') || '';
+    this.role = (sessionStorage.getItem('role') || 'Empleado').trim();
 
-    // Se recupera el rol del usuario. Si no hay nada, por defecto es "Empleado"
-    const rawRole = sessionStorage.getItem('role') || 'Empleado';
-    this.role = rawRole.trim(); // Se eliminan espacios extra por seguridad
-
-    // Se muestra en consola el rol que tiene el usuario
     console.log('ROL ACTUAL:', this.role);
 
-    this.servicio.getEmpleados().subscribe(empleados => {
-      if (this.role === 'Empleado') {
-        this.empleadoActual = empleados.find(emp => emp.login === this.login);
-      }
+    // Cargar datos iniciales
+    this.servicio.obtenerEmpleados();
+    this.departamentoService.obtenerDepartamentos();
+    this.listaDepartamentos = this.departamentoService.listaDepartamentos;
+
+    // Suscribirse a cambios en la lista de departamentos
+    this.departamentoSubscription = this.departamentoService.actualizacionLista$.subscribe(() => {
+      this.listaDepartamentos = this.departamentoService.listaDepartamentos;
+      console.log('Lista de departamentos en Fila3Component (actualización):', this.listaDepartamentos);
     });
 
+    // Si es empleado normal, cargar sus datos
+    if (this.role === 'Empleado') {
+      this.servicio.getEmpleados().subscribe({
+        next: (empleados) => {
+          this.empleadoActual = empleados.find(emp => emp.login === this.login) || null;
+        },
+        error: (err) => console.error('Error al buscar empleado actual:', err)
+      });
+    }
+    console.log('Lista de departamentos en Fila3Component (inicial):', this.listaDepartamentos);
   }
 
-  // Función para que Angular sepa cómo hacer seguimiento (trackBy) de los empleados por su DNI
-  trackByDni(index: number, empleado: any): string {
+  ngOnDestroy(): void {
+    if (this.departamentoSubscription) {
+      this.departamentoSubscription.unsubscribe();
+    }
+  }
+
+  trackByDni(index: number, empleado: TipoEmpleado): string {
     return empleado.dni;
   }
 
-  // Función para seguimiento de departamentos por su ID
-  trackById(index: number, departamento: any): string {
+  trackById(index: number, departamento: TipoDepartamento): number {
     return departamento.id;
   }
 
-  // Función para obtener el nombre de un departamento a partir de su ID
   getDepartamentoName(departamentoId: number): string {
     const departamento = this.departamentoService.listaDepartamentos.find(dep => dep.id === departamentoId);
     return departamento ? departamento.nombre : 'Desconocido';
   }
-  
 }

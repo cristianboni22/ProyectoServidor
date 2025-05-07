@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./signin.component.css']
 })
 export class SigninComponent {
-  user: TipoEmpleado = { login: "", password: "", dni: "", nombre_completo: "", departamento_id: "" };
+  user: TipoEmpleado = { login: "", password: "", dni: "", nombre_completo: "", departamento_id: 0 };
   errorMessage: string = '';
   constructor(
     private authService: AuthService,

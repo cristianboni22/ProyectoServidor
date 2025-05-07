@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Empleado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,9 +14,6 @@ class EmpleadoController extends Controller
     {
         $user = Auth::user();
 
-        //if ($user->login !== 'SuperAdmin') {
-        //    return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
-        //}
         $empleados = Empleado::all();
         if ($empleados->isEmpty()) {
             return response()->json(['message' => 'No existen empleados'], 404);
@@ -49,15 +47,14 @@ class EmpleadoController extends Controller
             'departamento_id' => 'required|exists:departamento,id',
         ]);
 
-
-        if (($request->login) === 'superadmin'&&'SuperAdmin') {
+        if (strtolower($request->login) === 'superadmin') {
             return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como login.']], 400);
         }
-        if (($request->nombre_completo) === 'superadmin'&&'SuperAdmin') {
-            return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
+        if (strtolower($request->nombre_completo) === 'superadmin') {
+            return response()->json(['error' => ['nombre_completo' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
         }
-        if (($request->dni) === 'superadmin'&&'SuperAdmin') {
-            return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
+        if (strtolower($request->dni) === 'superadmin') {
+            return response()->json(['error' => ['dni' => 'No se puede usar "SuperAdmin" como DNI.']], 400);
         }
 
         $datosEmpleado = $request->all();
@@ -72,9 +69,9 @@ class EmpleadoController extends Controller
     {
         $user = Auth::user();
 
-        //if ($user->login !== 'SuperAdmin') {
-        //    return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
-        //}
+        if ($user->login !== 'SuperAdmin') {
+            return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
+        }
         $empleado = Empleado::find($dni);
         if (!$empleado) {
             return response()->json(['message' => 'No existe empleado'], 404);
@@ -97,9 +94,9 @@ class EmpleadoController extends Controller
     {
         $user = Auth::user();
 
-        //if ($user->login !== 'SuperAdmin') {
-        //    return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
-        //}
+        if ($user->login !== 'SuperAdmin') {
+            return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
+        }
         $empleado = Empleado::find($dni);
         if (!$empleado) {
             return response()->json(['message' => 'No existe empleado'], 404);
@@ -108,4 +105,5 @@ class EmpleadoController extends Controller
         $empleado->delete();
         return response()->json(['message' => 'Empleado eliminado correctamente'], 200);
     }
+    
 }

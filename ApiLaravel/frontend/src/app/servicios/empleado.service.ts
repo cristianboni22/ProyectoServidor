@@ -1,138 +1,153 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError, tap } from 'rxjs';
 import { TipoEmpleado } from '../modelos/tipoEmpleado';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmpleadoService {
-
-  // 🌐 URL base de la API
   private apiUrl = 'http://localhost:8000/api/empleado';
 
-  // 📦 Estado de la app
   listaEmpleados: TipoEmpleado[] = [];
-  formularioEmpleado = {
+  formularioEmpleado: TipoEmpleado = {
     dni: '',
     nombre_completo: '',
     login: '',
     password: '',
-    departamento_id: ''
+    departamento_id: 0
   };
-  modoEdicion: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  modoCrearEmpleado: boolean = false;
+  modoEditarEmpleado: boolean = false;
 
-  // 🚀 MÉTODOS CRUD
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
-  // 🔄 Obtener todos los empleados
+  // Métodos CRUD mejorados con manejo de errores
+
   getEmpleados(): Observable<TipoEmpleado[]> {
-    return this.http.get<TipoEmpleado[]>(this.apiUrl);
+    return this.http.get<TipoEmpleado[]>(this.apiUrl, this.getHeaders()).pipe(
+      tap(response => {
+        console.log('Respuesta del servicio getEmpleados:', response);
+      }),
+      catchError(this.handleError)
+    );
   }
 
-  // 🔍 Obtener un empleado por DNI
   getEmpleadoByDni(dni: string): Observable<TipoEmpleado> {
-    return this.http.get<TipoEmpleado>(`${this.apiUrl}/${dni}`);
+    return this.http.get<TipoEmpleado>(`${this.apiUrl}/${dni}`, this.getHeaders()).pipe(
+      catchError(this.handleError)
+    );
   }
 
-
-  // ➕ Crear un nuevo empleado
-  crearEmpleado(): void {// clonar
-    this.http.post(this.apiUrl, this.formularioEmpleado, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    }).subscribe(() => {
-      this.obtenerEmpleados();
-      this.limpiarFormulario();
-    });
+  crearEmpleado(empleado: TipoEmpleado): Observable<any> {
+    return this.http.post(this.apiUrl, empleado, this.getHeaders()).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  // ✏️ Editar (cargar datos al formulario)
-  editarEmpleado(dni: string): void {
-    const empleado = this.listaEmpleados.find(emp => emp.dni === dni);
-    if (empleado) {
-      this.formularioEmpleado = { ...empleado };
-      this.modoEdicion = true;
-    }
+  actualizarEmpleado(dni: string, empleado: TipoEmpleado): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${dni}`, empleado, this.getHeaders()).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  // ✅ Actualizar empleado
-  actualizarEmpleado(): void {
-    this.http.put(`${this.apiUrl}/${this.formularioEmpleado.dni}`, this.formularioEmpleado)
-      .subscribe({
-        next: () => {
-          alert('Empleado actualizado correctamente');
+  guardarEmpleado(): void {
+    if (this.modoCrearEmpleado) {
+      this.crearEmpleado(this.formularioEmpleado).subscribe({
+        next: (response) => {
+          console.log('Empleado creado correctamente:', response);
           this.obtenerEmpleados();
           this.limpiarFormulario();
         },
-        error: (error) => {
-          alert('Error al actualizar el empleado');
-          console.error('Error al actualizar empleado:', error);
-        }
+        error: (err) => console.error('Error al crear empleado:', err)
       });
-  }
-
-  // 🗑️ Eliminar empleado
-  eliminarEmpleado(dni: string): void {
-    if (confirm('¿Estás seguro de eliminar este empleado?')) {
-      this.http.delete(`${this.apiUrl}/${dni}`)
-        .subscribe({
-          next: () => {
-            alert('Empleado eliminado correctamente');
-            this.obtenerEmpleados();
-          },
-          error: (error) => {
-            alert('Error al eliminar el empleado');
-            console.error('Error al eliminar empleado:', error);
-          }
-        });
+    } else if (this.modoEditarEmpleado && this.formularioEmpleado.dni) {
+      this.actualizarEmpleado(this.formularioEmpleado.dni, this.formularioEmpleado).subscribe({
+        next: (response) => {
+          console.log('Empleado actualizado correctamente:', response);
+          this.obtenerEmpleados();
+          this.limpiarFormulario();
+        },
+        error: (err) => console.error('Error al actualizar empleado:', err)
+      });
     }
   }
 
-  // 📥 Recargar empleados a la lista local
-  obtenerEmpleados(): void {
-    this.http.get<TipoEmpleado[]>(this.apiUrl)
-      .subscribe({
-        next: (data) => {
-          this.listaEmpleados = data;
-        },
-        error: (error) => {
-          console.error('Error al obtener empleados:', error);
-        }
-      });
+  eliminarEmpleado(dni: string): void {
+    const url = `${this.apiUrl}/${dni}`;
+    this.http.delete<any>(url).subscribe({
+      next: (response) => {
+        console.log('Empleado eliminado:', response);
+        this.obtenerEmpleados();
+        this.limpiarFormulario();
+      },
+      error: (error) => {
+        console.error('Error al eliminar empleado:', error);
+      }
+    });
   }
 
-  // 🧼 Limpiar formulario y reiniciar modo edición
+  // Métodos para manejar el estado
+
+  nuevoEmpleado(): void {
+    this.limpiarFormulario();
+    this.modoCrearEmpleado = true;
+    this.modoEditarEmpleado = false;
+  }
+
+  editarEmpleado(dni: string): void {
+    this.getEmpleadoByDni(dni).subscribe({
+      next: (empleado) => {
+        this.formularioEmpleado = { ...empleado };
+        this.modoEditarEmpleado = true;
+        this.modoCrearEmpleado = false;
+      },
+      error: (err) => console.error('Error al cargar empleado:', err)
+    });
+  }
+
+  obtenerEmpleados(): void {
+    this.getEmpleados().subscribe({
+      next: (empleados) => {
+        this.listaEmpleados = empleados;
+        console.log('Lista de empleados obtenida:', this.listaEmpleados);
+      },
+      error: (err) => console.error('Error al obtener empleados:', err)
+    });
+  }
+
   limpiarFormulario(): void {
     this.formularioEmpleado = {
       dni: '',
       nombre_completo: '',
       login: '',
       password: '',
-      departamento_id: ''
+      departamento_id: 0
     };
-    this.modoEdicion = false;
+    this.modoCrearEmpleado = false;
+    this.modoEditarEmpleado = false;
   }
 
-  // ✨ Inicializar nuevo empleado
-  nuevoEmpleado(): void {
-    console.log("Clic en nuevo empleado");
-    this.formularioEmpleado = {
-      dni: '',
-      nombre_completo: '',
-      login: '',
-      password: '',
-      departamento_id: ''
+  // Métodos auxiliares
+
+  private getHeaders(): { headers: HttpHeaders } {
+    const token = this.authService.getToken();
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      })
     };
-    this.modoEdicion = true;
   }
-  
-  guardarEmpleado(): void {
-    if (this.formularioEmpleado.dni) {
-      this.crearEmpleado(); 
-    } else {
-      this.actualizarEmpleado(); 
+
+  private handleError(error: any): Observable<never> {
+    console.error('Error en el servicio de empleados:', error);
+    let errorMessage = 'Ocurrió un error';
+    if (error.error && error.error.message) {
+      errorMessage = error.error.message;
     }
+    return throwError(() => new Error(errorMessage));
   }
-  
 }

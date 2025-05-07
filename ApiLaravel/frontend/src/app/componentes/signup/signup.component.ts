@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 export class SignupComponent {
 
 
-  user:TipoEmpleado = {login:"",password:"",dni:"",nombre_completo:"",departamento_id:""};
+  user:TipoEmpleado = {login:"",password:"",dni:"",nombre_completo:"",departamento_id:0};
   listaDepartamentos: TipoDepartamento[] = [];
   constructor(
     private authService: AuthService,

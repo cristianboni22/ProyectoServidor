@@ -1,8 +1,7 @@
 <div id="fila3" class="container mt-12">
-  <!-- Contenido exclusivo para SuperAdmin -->
   <div *ngIf="role === 'SuperAdmin'">
     <div class="row g-6">
-      <!-- Columna Empleados -->
+
       <div class="col-md-6">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-primary text-white text-center">
@@ -26,11 +25,11 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let empleado of servicio.listaEmpleados; trackBy: trackByDni">
-                    <td>{{ empleado.dni }}</td>
-                    <td>{{ empleado.nombre_completo }}</td>
-                    <td>{{ empleado.login }}</td>
-                    <td>{{ getDepartamentoName(+empleado.departamento_id) }}</td>
+                    <tr *ngFor="let empleado of servicio.listaEmpleados; trackBy: trackByDni">
+                      <td>{{ empleado.dni }}</td>
+                      <td>{{ empleado.nombre_completo }}</td>
+                      <td>{{ empleado.login }}</td>
+                      <td>{{ getDepartamentoName(empleado.departamento_id) }}</td>
                     <td>
                       <button class="btn btn-sm btn-success me-2" (click)="servicio.editarEmpleado(empleado.dni)">
                         <i class="bi bi-pencil-square">Editar</i>
@@ -43,66 +42,94 @@
                 </tbody>
               </table>
             </div>
-          </div>
-          <!-- Formulario de Añadir de Empleado -->
-          <div *ngIf="servicio.modoEdicion" class="card shadow-sm mt-4 mx-auto" style="max-width: 600px;">
-            <div class="card-header bg-info text-white text-center">
-              <h4>{{ servicio.formularioEmpleado.dni ? 'Nuevo Empleado' : 'Actualizar Empleado' }}
-              </h4>
-            </div>
-            <div class="card-body">
-              <form (ngSubmit)="servicio.guardarEmpleado()">
-                <div class="mb-3">
-                  <label for="dni" class="form-label">DNI</label>
-                  <input type="text" id="dni" class="form-control" [(ngModel)]="servicio.formularioEmpleado.dni"
-                    [ngModelOptions]="{standalone: true}" placeholder="DNI del Empleado" />
-                </div>
 
-                <div class="mb-3">
-                  <label for="nombre_completo" class="form-label">Nombre Completo</label>
-                  <input type="text" id="nombre_completo" class="form-control"
-                    [(ngModel)]="servicio.formularioEmpleado.nombre_completo" [ngModelOptions]="{standalone: true}"
-                    placeholder="Nombre Completo del Empleado" />
-                </div>
-
-                <div class="mb-3">
-                  <label for="login" class="form-label">Login</label>
-                  <input type="text" id="login" class="form-control" [(ngModel)]="servicio.formularioEmpleado.login"
-                    [ngModelOptions]="{standalone: true}" placeholder="Login del Empleado" />
-                </div>
-
-                <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input type="password" id="password" class="form-control"
-                    [(ngModel)]="servicio.formularioEmpleado.password" [ngModelOptions]="{standalone: true}"
-                    placeholder="Password del Empleado" />
-                </div>
-
-                <div class="mb-3">
-                  <label for="departamento" class="form-label">Departamento</label>
-                  <select id="departamento" class="form-select"
-                    [(ngModel)]="servicio.formularioEmpleado.departamento_id" [ngModelOptions]="{standalone: true}">
-                    <option [value]="''" disabled selected>Selecciona un departamento</option>
-                    <option *ngFor="let dep of departamentoService.listaDepartamentos" [value]="dep.id">
-                      {{ dep.nombre }}
-                    </option>
-                  </select>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                  <button type="submit" class="btn btn-primary w-50 me-2">
-                    {{ servicio.formularioEmpleado.dni ? 'Crear' : 'Actualizar' }}
-                  </button>
+            <div *ngIf="servicio.modoCrearEmpleado" class="card shadow-sm mt-4 mx-auto" style="max-width: 600px;">
+              <div class="card-header bg-info text-white text-center">
+                <h4>Nuevo Empleado</h4>
+              </div>
+              <div class="card-body">
+                <form (ngSubmit)="servicio.guardarEmpleado()">
+                  <div class="form-group">
+                    <label for="dni">DNI:</label>
+                    <input id="dni" [(ngModel)]="servicio.formularioEmpleado.dni" name="dni" type="text"
+                      class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="nombre_completo">Nombre Completo:</label>
+                    <input id="nombre_completo" [(ngModel)]="servicio.formularioEmpleado.nombre_completo"
+                      name="nombre_completo" type="text" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="login">Login:</label>
+                    <input id="login" [(ngModel)]="servicio.formularioEmpleado.login" name="login" type="text"
+                      class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" [(ngModel)]="servicio.formularioEmpleado.password" name="password"
+                      type="password" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <select id="departamento" class="form-select"
+                      [(ngModel)]="servicio.formularioEmpleado.departamento_id" name="departamento_id" required>
+                      <option [value]="''" disabled selected>Selecciona un departamento</option>
+                      <option *ngFor="let dep of departamentoService.listaDepartamentos" [value]="dep.id">
+                        {{ dep.nombre }}
+                      </option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-50 me-2">Crear</button>
                   <button type="button" class="btn btn-secondary w-50"
                     (click)="servicio.limpiarFormulario()">Cancelar</button>
-                </div>
-              </form>
+                </form>
+              </div>
+            </div>
+
+            <div *ngIf="servicio.modoEditarEmpleado" class="card shadow-sm mt-4 mx-auto" style="max-width: 600px;">
+              <div class="card-header bg-info text-white text-center">
+                <h4>Actualizar Empleado</h4>
+              </div>
+              <div class="card-body">
+                <form (ngSubmit)="servicio.guardarEmpleado()">
+                  <div class="form-group">
+                    <label for="dni">DNI:</label>
+                    <input id="dni" [(ngModel)]="servicio.formularioEmpleado.dni" name="dni" type="text"
+                      class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="nombre_completo">Nombre Completo:</label>
+                    <input id="nombre_completo" [(ngModel)]="servicio.formularioEmpleado.nombre_completo"
+                      name="nombre_completo" type="text" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="login">Login:</label>
+                    <input id="login" [(ngModel)]="servicio.formularioEmpleado.login" name="login" type="text"
+                      class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" [(ngModel)]="servicio.formularioEmpleado.password" name="password"
+                      type="password" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <select id="departamento" class="form-select"
+                      [(ngModel)]="servicio.formularioEmpleado.departamento_id" name="departamento_id" required>
+                      <option [value]="''" disabled selected>Selecciona un departamento</option>
+                      <option *ngFor="let dep of departamentoService.listaDepartamentos" [value]="dep.id">
+                        {{ dep.nombre }}
+                      </option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-50 me-2">Actualizar</button>
+                  <button type="button" class="btn btn-secondary w-50"
+                    (click)="servicio.limpiarFormulario()">Cancelar</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Columna Departamentos -->
       <div class="col-md-6">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-primary text-white text-center">
@@ -126,9 +153,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tbody>
-                    <tr *ngFor="let departamento of departamentoService.listaDepartamentos; trackBy: trackById">
-                  
+                  <tr *ngFor="let departamento of departamentoService.listaDepartamentos; trackBy: trackById">
                     <td>{{ departamento.id }}</td>
                     <td>{{ departamento.nombre }}</td>
                     <td>{{ departamento.telefono }}</td>
@@ -147,45 +172,41 @@
                 </tbody>
               </table>
             </div>
-          </div>
-          <!-- Formulario de Añadir de Departamento -->
-          <div *ngIf="departamentoService.modoEdicion" class="card shadow-sm mt-4 mx-auto" style="max-width: 600px;">
-            <div class="card-header bg-info text-white text-center">
-              <h4>{{ departamentoService.formularioDepartamento.id === 0 ? 'Nuevo Departamento' : 'Actualizar
-                Departamento' }}
-              </h4>
-            </div>
-            <div class="card-body">
-              <form (ngSubmit)="departamentoService.guardarDepartamento()">
-                <div class="mb-3">
-                  <label for="nombre" class="form-label">Nombre</label>
-                  <input type="text" id="nombre" class="form-control"
-                    [(ngModel)]="departamentoService.formularioDepartamento.nombre"
-                    [ngModelOptions]="{standalone: true}" placeholder="Nombre del Departamento" />
-                </div>
 
-                <div class="mb-3">
-                  <label for="telefono" class="form-label">Teléfono</label>
-                  <input type="number" id="telefono" class="form-control"
-                    [(ngModel)]="departamentoService.formularioDepartamento.telefono"
-                    [ngModelOptions]="{standalone: true}" placeholder="Teléfono del Departamento" />
-                </div>
-
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="text" id="email" class="form-control"
-                    [(ngModel)]="departamentoService.formularioDepartamento.email" [ngModelOptions]="{standalone: true}"
-                    placeholder="Email del Departamento" />
-                </div>
-
-                <div class="d-flex justify-content-between">
-                  <button type="submit" class="btn btn-primary w-50 me-2">
-                    {{ departamentoService.formularioDepartamento.id === 0 ? 'Crear' : 'Actualizar' }}
-                  </button>
-                  <button type="button" class="btn btn-secondary w-50"
-                    (click)="departamentoService.limpiarFormulario()">Cancelar</button>
-                </div>
-              </form>
+            <div *ngIf="departamentoService.modoEdicion" class="card shadow-sm mt-4 mx-auto" style="max-width: 600px;">
+              <div class="card-header bg-info text-white text-center">
+                <h4>{{ departamentoService.formularioDepartamento.id === 0 ? 'Nuevo Departamento' : 'Actualizar
+                  Departamento' }}</h4>
+              </div>
+              <div class="card-body">
+                <form (ngSubmit)="departamentoService.guardarDepartamento()">
+                  <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" id="nombre" class="form-control"
+                      [(ngModel)]="departamentoService.formularioDepartamento.nombre"
+                      [ngModelOptions]="{standalone: true}" placeholder="Nombre del Departamento" />
+                  </div>
+                  <div class="mb-3">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="number" id="telefono" class="form-control"
+                      [(ngModel)]="departamentoService.formularioDepartamento.telefono"
+                      [ngModelOptions]="{standalone: true}" placeholder="Teléfono del Departamento" />
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="text" id="email" class="form-control"
+                      [(ngModel)]="departamentoService.formularioDepartamento.email"
+                      [ngModelOptions]="{standalone: true}" placeholder="Email del Departamento" />
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary w-50 me-2">
+                      {{ departamentoService.formularioDepartamento.id === 0 ? 'Crear' : 'Actualizar' }}
+                    </button>
+                    <button type="button" class="btn btn-secondary w-50"
+                      (click)="departamentoService.limpiarFormulario()">Cancelar</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -193,7 +214,6 @@
     </div>
   </div>
 
-  <!-- Contenido para empleados normales -->
   <div *ngIf="role === 'Empleado'">
     <div class="card shadow-sm">
       <div class="card-header bg-primary text-white text-center">
@@ -215,7 +235,7 @@
                 <td>{{ empleadoActual.dni }}</td>
                 <td>{{ empleadoActual.nombre_completo }}</td>
                 <td>{{ empleadoActual.login }}</td>
-                <td>{{ getDepartamentoName(+empleadoActual.departamento_id) }}</td>
+                <td>{{ getDepartamentoName(empleadoActual.departamento_id) }}</td>
               </tr>
             </tbody>
           </table>
