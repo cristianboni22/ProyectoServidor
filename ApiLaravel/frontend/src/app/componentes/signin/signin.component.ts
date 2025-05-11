@@ -31,6 +31,7 @@ export class SigninComponent {
             
               sessionStorage.setItem('token', res.mensaje);
               sessionStorage.setItem('login', this.user.login);
+              sessionStorage.setItem('dni', res.dni);
               
               const loginLimpio = this.user.login.trim().toLowerCase();
               const adminLogin = 'superadmin'; // Cambia esto si tu login de superadmin es diferente
@@ -45,10 +46,13 @@ export class SigninComponent {
               this.router.navigate(['/editar']);
             }},
             (error) => {
-              // Capturar mensaje personalizado del backend
               if (error.status === 404 || error.status === 401) {
-                // Espera que el backend devuelva { error: "mensaje" }
-                this.errorMessage = error.error?.error || 'Error desconocido al iniciar sesión.';
+                this.errorMessage = error.error?.error || 'Usuario o contraseña incorrectos.';
+              } else if (error.status === 422 && error.error?.error) {
+                const errores = error.error.error;
+                this.errorMessage = Object.keys(errores)
+                  .map(campo => `${campo}: ${errores[campo]}`)
+                  .join('\n');
               } else {
                 this.errorMessage = 'Error del servidor. Intente más tarde.';
               }

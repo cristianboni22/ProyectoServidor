@@ -89,5 +89,3 @@ ng serve --host 0.0.0.0 --port 4200
 Mostrar los errores que te da el backend si falta algo o si repite algo.
 
 Cambiar el frontend de empleado solo para que haga uso de su dni y no con el inicio de sesion.
-
-Poder editar el empleado en la parte de SuperAdmin que no deja.

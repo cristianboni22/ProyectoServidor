@@ -11,26 +11,19 @@ export class EmpleadoService {
   private apiUrl = 'http://localhost:8000/api/empleado';
 
   listaEmpleados: TipoEmpleado[] = [];
-  formularioEmpleado: TipoEmpleado = {
-    dni: '',
-    nombre_completo: '',
-    login: '',
-    password: '',
-    departamento_id: 0
-  };
+  formularioEmpleado: TipoEmpleado = this.getEmpleadoVacio();
 
-  modoCrearEmpleado: boolean = false;
-  modoEditarEmpleado: boolean = false;
+  modoCrearEmpleado = false;
+  modoEditarEmpleado = false;
+  mensajeErrorEmpleado = '';
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Métodos CRUD mejorados con manejo de errores
+  // CRUD
 
   getEmpleados(): Observable<TipoEmpleado[]> {
     return this.http.get<TipoEmpleado[]>(this.apiUrl, this.getHeaders()).pipe(
-      tap(response => {
-        console.log('Respuesta del servicio getEmpleados:', response);
-      }),
+      tap(response => console.log('Respuesta del servicio getEmpleados:', response)),
       catchError(this.handleError)
     );
   }
@@ -48,53 +41,52 @@ export class EmpleadoService {
   }
 
   actualizarEmpleado(dni: string, empleado: TipoEmpleado): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${dni}`, empleado, this.getHeaders()).pipe(
+    return this.http.put(`${this.apiUrl}/${dni}`, empleado, this.getHeaders()).pipe(
       catchError(this.handleError)
     );
   }
 
+  eliminarEmpleado(dni: string): void {
+    this.http.delete(`${this.apiUrl}/${dni}`, this.getHeaders()).subscribe({
+      next: (response) => {
+        console.log('Empleado eliminado:', response);
+        this.recargarListaYLimpiar();
+      },
+      error: (err) => {
+        console.error('Error al eliminar empleado:', err.message);
+        this.mensajeErrorEmpleado = err.message;
+      }
+    });
+  }
+
+  // Acciones desde el formulario
+
   guardarEmpleado(): void {
+    this.mensajeErrorEmpleado = '';
+
     if (this.modoCrearEmpleado) {
       this.crearEmpleado(this.formularioEmpleado).subscribe({
         next: (response) => {
           console.log('Empleado creado correctamente:', response);
-          this.obtenerEmpleados();
-          this.limpiarFormulario();
+          this.recargarListaYLimpiar();
         },
-        error: (err) => console.error('Error al crear empleado:', err)
+        error: (err) => {
+          console.error('Error al crear empleado:', err.message);
+          this.mensajeErrorEmpleado = err.message;
+        }
       });
     } else if (this.modoEditarEmpleado && this.formularioEmpleado.dni) {
       this.actualizarEmpleado(this.formularioEmpleado.dni, this.formularioEmpleado).subscribe({
         next: (response) => {
           console.log('Empleado actualizado correctamente:', response);
-          this.obtenerEmpleados();
-          this.limpiarFormulario();
+          this.recargarListaYLimpiar();
         },
-        error: (err) => console.error('Error al actualizar empleado:', err)
+        error: (err) => {
+          console.error('Error al actualizar empleado:', err.message);
+          this.mensajeErrorEmpleado = err.message;
+        }
       });
     }
-  }
-
-  eliminarEmpleado(dni: string): void {
-    const url = `${this.apiUrl}/${dni}`;
-    this.http.delete<any>(url).subscribe({
-      next: (response) => {
-        console.log('Empleado eliminado:', response);
-        this.obtenerEmpleados();
-        this.limpiarFormulario();
-      },
-      error: (error) => {
-        console.error('Error al eliminar empleado:', error);
-      }
-    });
-  }
-
-  // Métodos para manejar el estado
-
-  nuevoEmpleado(): void {
-    this.limpiarFormulario();
-    this.modoCrearEmpleado = true;
-    this.modoEditarEmpleado = false;
   }
 
   editarEmpleado(dni: string): void {
@@ -103,9 +95,20 @@ export class EmpleadoService {
         this.formularioEmpleado = { ...empleado };
         this.modoEditarEmpleado = true;
         this.modoCrearEmpleado = false;
+        this.mensajeErrorEmpleado = '';
       },
-      error: (err) => console.error('Error al cargar empleado:', err)
+      error: (err) => {
+        console.error('Error al cargar empleado:', err.message);
+        this.mensajeErrorEmpleado = err.message;
+      }
     });
+  }
+
+  nuevoEmpleado(): void {
+    this.limpiarFormulario();
+    this.modoCrearEmpleado = true;
+    this.modoEditarEmpleado = false;
+    this.mensajeErrorEmpleado = '';
   }
 
   obtenerEmpleados(): void {
@@ -114,23 +117,35 @@ export class EmpleadoService {
         this.listaEmpleados = empleados;
         console.log('Lista de empleados obtenida:', this.listaEmpleados);
       },
-      error: (err) => console.error('Error al obtener empleados:', err)
+      error: (err) => {
+        console.error('Error al obtener empleados:', err.message);
+        this.mensajeErrorEmpleado = err.message;
+      }
     });
   }
 
+  // Utilidades
+
   limpiarFormulario(): void {
-    this.formularioEmpleado = {
+    this.formularioEmpleado = this.getEmpleadoVacio();
+    this.modoCrearEmpleado = false;
+    this.modoEditarEmpleado = false;
+  }
+
+  private recargarListaYLimpiar(): void {
+    this.obtenerEmpleados();
+    this.limpiarFormulario();
+  }
+
+  private getEmpleadoVacio(): TipoEmpleado {
+    return {
       dni: '',
       nombre_completo: '',
       login: '',
       password: '',
       departamento_id: 0
     };
-    this.modoCrearEmpleado = false;
-    this.modoEditarEmpleado = false;
   }
-
-  // Métodos auxiliares
 
   private getHeaders(): { headers: HttpHeaders } {
     const token = this.authService.getToken();
@@ -143,11 +158,24 @@ export class EmpleadoService {
   }
 
   private handleError(error: any): Observable<never> {
+    let errorMessage = 'Error inesperado. Intente más tarde.';
     console.error('Error en el servicio de empleados:', error);
-    let errorMessage = 'Ocurrió un error';
-    if (error.error && error.error.message) {
-      errorMessage = error.error.message;
+
+    if (error.status === 403) {
+      errorMessage = error.error?.error || 'No tienes permisos para realizar esta acción.';
+    } else if (error.status === 404) {
+      errorMessage = error.error?.message || 'No se encontró el recurso solicitado.';
+    } else if (error.status === 400 || error.status === 422) {
+      const errores = error.error?.error;
+      if (errores && typeof errores === 'object') {
+        errorMessage = Object.entries(errores)
+          .map(([campo, mensaje]) => `${campo}: ${mensaje}`)
+          .join('\n');
+      } else {
+        errorMessage = error.error?.message || 'Datos inválidos.';
+      }
     }
+
     return throwError(() => new Error(errorMessage));
   }
 }

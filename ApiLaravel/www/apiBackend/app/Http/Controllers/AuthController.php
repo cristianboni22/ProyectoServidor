@@ -29,14 +29,14 @@ class AuthController extends Controller
 
 
     // Verificar si el login es "superadmin" (ignorar mayúsculas/minúsculas)
-    if (($request->login) === 'superadmin'&&'SuperAdmin') {
+    if (strcasecmp(trim($request->login), 'superadmin') === 0) {
         return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como login.']], 400);
     }
-    if (($request->nombre_completo) === 'superadmin'&&'SuperAdmin') {
-        return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
+    if (strcasecmp(trim($request->nombre_completo), 'superadmin') === 0) {
+        return response()->json(['error' => ['nombre_completo' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
     }
-    if (($request->dni) === 'superadmin'&&'SuperAdmin') {
-        return response()->json(['error' => ['login' => 'No se puede usar "SuperAdmin" como nombre completo.']], 400);
+    if (strcasecmp(trim($request->dni), 'superadmin') === 0) {
+        return response()->json(['error' => ['dni' => 'No se puede usar "SuperAdmin" como DNI.']], 400);
     }
 
 
@@ -83,7 +83,9 @@ class AuthController extends Controller
         // Responder con el token y el rol
         return response()->json([
             'mensaje' => $token->plainTextToken,
-            'role' => $role 
+            'role' => $role,
+            'login' => $empleado->login,   
+            'dni' => $empleado->dni   
         ]);
     }
 }

@@ -7,19 +7,11 @@ use Illuminate\Support\Facades\Auth;
 
 class DepartamentoController extends Controller
 {
-    //
-    //public function index()
-    //{
-    //    $departamentos = Departamento::with('empleados')->get();
-    //    return response()->json(['respuesta' => $departamentos]);
-    //}
     // Obtener todos los departamentos
     public function index()
     {
         $user = Auth::user();
-        //if ($user->login !== 'SuperAdmin') {
-        //    return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
-        //}
+
         $departamentos = Departamento::all();
         if ($departamentos->isEmpty()) {
             return response()->json(['message' => 'No existe ningún departamento'], 404);
@@ -27,11 +19,20 @@ class DepartamentoController extends Controller
         return response()->json($departamentos, 200);
     }
 
+
+
+
+
+
+
+
+
     // Obtener un departamento por id
     public function show($id)
     {
         $user = Auth::user();
 
+        //Solo puede SuperAdmin sino salta este errror
         if ($user->login !== 'SuperAdmin') {
             return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
         }
@@ -47,6 +48,7 @@ class DepartamentoController extends Controller
     {
         $user = Auth::user();
 
+        //Solo puede SuperAdmin sino salta este errror
         if ($user->login !== 'SuperAdmin') {
             return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
         }
@@ -65,6 +67,7 @@ class DepartamentoController extends Controller
     {
         $user = Auth::user();
 
+        //Solo puede SuperAdmin sino salta este errror
         if ($user->login !== 'SuperAdmin') {
             return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
         }
@@ -72,6 +75,7 @@ class DepartamentoController extends Controller
         if (!$departamento) {
             return response()->json(['message' => 'No existe departamento'], 404);
         }
+
         $request->validate([
             'nombre' => 'required',
             'telefono' => 'required',
@@ -87,6 +91,7 @@ class DepartamentoController extends Controller
     {
         $user = Auth::user();
 
+        //Solo puede SuperAdmin sino salta este errror
         if ($user->login !== 'SuperAdmin') {
             return response()->json(['error' => 'Falta de permisos. Solo SuperAdmin puede acceder.'], 403);
         }

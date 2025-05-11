@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 export class Fila3Component implements OnInit, OnDestroy {
   login: string = '';
   role: string = '';
+  dni:string ='';
   listaDepartamentos: TipoDepartamento[] = [];
   empleadoActual: TipoEmpleado | null = null;
   private departamentoSubscription: Subscription | undefined;
@@ -29,14 +30,19 @@ export class Fila3Component implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Obtener datos de sesión
     this.login = sessionStorage.getItem('login') || '';
+    this.dni = sessionStorage.getItem('dni') || '';
     this.role = (sessionStorage.getItem('role') || 'Empleado').trim();
 
     console.log('ROL ACTUAL:', this.role);
-
-    // Cargar datos iniciales
-    this.servicio.obtenerEmpleados();
+    console.log('DNI ACTUAL:', this.dni);
     this.departamentoService.obtenerDepartamentos();
     this.listaDepartamentos = this.departamentoService.listaDepartamentos;
+
+    // Cargar datos iniciales
+    if (this.role === 'SuperAdmin') {
+    this.servicio.obtenerEmpleados();
+  }
+  
 
     // Suscribirse a cambios en la lista de departamentos
     this.departamentoSubscription = this.departamentoService.actualizacionLista$.subscribe(() => {
@@ -45,12 +51,13 @@ export class Fila3Component implements OnInit, OnDestroy {
     });
 
     // Si es empleado normal, cargar sus datos
-    if (this.role === 'Empleado') {
-      this.servicio.getEmpleados().subscribe({
-        next: (empleados) => {
-          this.empleadoActual = empleados.find(emp => emp.login === this.login) || null;
+    if (this.role === 'Empleado' && this.dni) {
+      this.servicio.getEmpleadoByDni(this.dni).subscribe({
+        next: (empleado) => {
+          this.empleadoActual = empleado;
+          console.log('Empleado cargado por DNI:', this.empleadoActual);
         },
-        error: (err) => console.error('Error al buscar empleado actual:', err)
+        error: (err) => console.error('Error al obtener el empleado por DNI:', err)
       });
     }
     console.log('Lista de departamentos en Fila3Component (inicial):', this.listaDepartamentos);
@@ -70,8 +77,8 @@ export class Fila3Component implements OnInit, OnDestroy {
     return departamento.id;
   }
 
-  getDepartamentoName(departamentoId: number): string {
-    const departamento = this.departamentoService.listaDepartamentos.find(dep => dep.id === departamentoId);
-    return departamento ? departamento.nombre : 'Desconocido';
-  }
+getDepartamentoName(departamentoId: number): string {
+  const departamento = this.departamentoService.listaDepartamentos.find(dep => dep.id === departamentoId);
+  return departamento ? departamento.nombre : 'Desconocido';
+}
 }

@@ -10,7 +10,6 @@ export class DepartamentosService {
 
   private apiUrl = 'http://localhost:8000/api/departamento';
 
-  // 👉 Emitimos cambios a través de un Subject
   private actualizacionLista = new Subject<void>();
   actualizacionLista$ = this.actualizacionLista.asObservable();
 
@@ -26,20 +25,39 @@ export class DepartamentosService {
 
   constructor(private http: HttpClient) {}
 
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
   getDepartamentos(): Observable<TipoDepartamento[]> {
-    return this.http.get<TipoDepartamento[]>(this.apiUrl);
+    return this.http.get<TipoDepartamento[]>(this.apiUrl, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   getDepartamentoById(id: number): Observable<TipoDepartamento> {
-    return this.http.get<TipoDepartamento>(`${this.apiUrl}/${id}`);
+    return this.http.get<TipoDepartamento>(`${this.apiUrl}/${id}`, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   crearDepartamento(): void {
     this.http.post(this.apiUrl, this.formularioDepartamento, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    }).subscribe(() => {
-      this.obtenerDepartamentos();  // ✅ Notifica al componente
-      this.limpiarFormulario(); 
+      headers: this.getAuthHeaders()
+    }).subscribe({
+      next: () => {
+        this.obtenerDepartamentos();
+        this.limpiarFormulario();
+        alert('Departamento creado correctamente');
+      },
+      error: (err) => {
+        alert('Error al crear departamento');
+        console.error(err);
+      }
     });
   }
 
@@ -52,37 +70,42 @@ export class DepartamentosService {
   }
 
   actualizarDepartamento(): void {
-    this.http.put(`${this.apiUrl}/${this.formularioDepartamento.id}`, this.formularioDepartamento).subscribe({
+    this.http.put(`${this.apiUrl}/${this.formularioDepartamento.id}`, this.formularioDepartamento, {
+      headers: this.getAuthHeaders()
+    }).subscribe({
       next: () => {
         alert('Departamento actualizado correctamente');
-        this.obtenerDepartamentos(); // ✅ Notifica
+        this.obtenerDepartamentos();
         this.limpiarFormulario();
       },
       error: (error) => {
         alert('Error al actualizar el departamento');
-        console.error('Error al actualizar departamento:', error);
+        console.error(error);
       }
     });
   }
 
   eliminarDepartamento(id: number): void {
     if (confirm('¿Estás seguro de eliminar este departamento?')) {
-      this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+      this.http.delete(`${this.apiUrl}/${id}`, {
+        headers: this.getAuthHeaders()
+      }).subscribe({
         next: () => {
           alert('Departamento eliminado correctamente');
-          this.obtenerDepartamentos(); // ✅ Notifica
+          this.obtenerDepartamentos();
         },
         error: (error) => {
           alert('Error al eliminar el departamento');
-          console.error('Error al eliminar departamento:', error);
+          console.error(error);
         }
       });
     }
   }
 
   obtenerDepartamentos(): void {
-    this.http.get<TipoDepartamento[]>(this.apiUrl)
-    .subscribe({
+    this.http.get<TipoDepartamento[]>(this.apiUrl, {
+      headers: this.getAuthHeaders()
+    }).subscribe({
       next: (data) => {
         this.listaDepartamentos = data;
         console.log('Departamentos actualizados:', data);
@@ -115,9 +138,9 @@ export class DepartamentosService {
 
   guardarDepartamento(): void {
     if (this.formularioDepartamento.id === 0) {
-      this.crearDepartamento(); 
+      this.crearDepartamento();
     } else {
-      this.actualizarDepartamento(); 
+      this.actualizarDepartamento();
     }
   }
 }

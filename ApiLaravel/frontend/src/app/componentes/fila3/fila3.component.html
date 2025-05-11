@@ -48,6 +48,9 @@
                 <h4>Nuevo Empleado</h4>
               </div>
               <div class="card-body">
+                <div *ngIf="servicio.mensajeErrorEmpleado" class="alert alert-danger">
+                  {{ servicio.mensajeErrorEmpleado }}
+                </div>
                 <form (ngSubmit)="servicio.guardarEmpleado()">
                   <div class="form-group">
                     <label for="dni">DNI:</label>
@@ -90,12 +93,10 @@
                 <h4>Actualizar Empleado</h4>
               </div>
               <div class="card-body">
+                <div *ngIf="servicio.mensajeErrorEmpleado" class="alert alert-danger">
+                  {{ servicio.mensajeErrorEmpleado }}
+                </div>
                 <form (ngSubmit)="servicio.guardarEmpleado()">
-                  <div class="form-group">
-                    <label for="dni">DNI:</label>
-                    <input id="dni" [(ngModel)]="servicio.formularioEmpleado.dni" name="dni" type="text"
-                      class="form-control" required>
-                  </div>
                   <div class="form-group">
                     <label for="nombre_completo">Nombre Completo:</label>
                     <input id="nombre_completo" [(ngModel)]="servicio.formularioEmpleado.nombre_completo"

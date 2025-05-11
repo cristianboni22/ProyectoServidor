@@ -58,7 +58,20 @@ export class SignupComponent {
         },
         err => {
           console.error(err);
-          alert('Error al crear el usuario. ' + (err.error?.error?.login ?? ''));
+          if (err.status === 422 && err.error?.error) {
+            const errores = err.error.error;
+            const mensajes = Object.keys(errores)
+              .map(campo => `${campo}: ${errores[campo]}`)
+              .join('\n');
+            alert('Errores de validación:\n' + mensajes);
+          } else if (err.status === 400 && err.error?.error) {
+            const mensajes = Object.keys(err.error.error)
+              .map(campo => `${campo}: ${err.error.error[campo]}`)
+              .join('\n');
+            alert('Error:\n' + mensajes);
+          } else {
+            alert('Error inesperado. Intente más tarde.');
+          }
         }
       );
   }
