@@ -72,7 +72,7 @@ El frontend consume la API REST creada en Laravel y permite al usuario interactu
 ### Backend
 ```bash
 cd apiBackend
-composer install
+../composer install
 php artisan migrate --seed
 php artisan serve
 ```
